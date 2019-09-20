@@ -31,7 +31,8 @@
 
     "background": {
         "scripts": [
-            "script/browser-polyfill.min.js", 
+            "script/browser-polyfill.min.js",
+            "script/bootstrap.js",
             "script/background.js"
         ]
     },
