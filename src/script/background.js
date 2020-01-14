@@ -148,7 +148,12 @@ function handleWebNavigation(_info) {
     if (_info.parentFrameId >= 0) return;
 
     // exit if not the principal frame
-    if (_info.frameId !== 0) return;
+
+    // I don't think we should exit if it's not the "principle frame". Whatever
+    // that means. When opening in a new tab, the new tab is not the principle
+    // frame, I imagine.
+
+    // if (_info.frameId !== 0) return;
     
     // save globally the tab info
     activeTab = _info;
