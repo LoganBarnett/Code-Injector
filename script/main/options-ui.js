@@ -54,7 +54,7 @@ function updateRulesCounter(){
 }
 
 /**
- * update the settinge object to the storage
+ * update the settings object to the storage
  */
 function updateSettings(){
 
@@ -73,9 +73,14 @@ function updateSettings(){
  */
 function applySettings(){
 
-    el.cbShowcounter.checked = Settings.getItem('showcounter'),
-    el.txtSizeW.value = Settings.getItem('size').width;
-    el.txtSizeH.value = Settings.getItem('size').height;
+    console.log('settings', Settings)
+    console.log('size', Settings.$getItem('size'))
+    if(Settings.$getItem('size') == null) {
+        Settings.setItem('size', { height: 0, width: 0 });
+    }
+    el.cbShowcounter.checked = Settings.$getItem('showcounter'),
+    el.txtSizeW.value = Settings.$getItem('size').width;
+    el.txtSizeH.value = Settings.$getItem('size').height;
 }
 
 /**
@@ -810,7 +815,7 @@ window.addEventListener('load', function(_e){
         assignPageEvents();
     });
 
-    Rules.onChange(function(){
+    Rules.onChanged(function(){
 
         // update on change
         updateRulesCounter();

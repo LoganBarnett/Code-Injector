@@ -97,6 +97,8 @@ function initialize(){
         // request monaco editor
         requireMonaco().then(function(){
 
+            console.log('Next warning will be unreachable code. Ignore.')
+            return;
             // initialize the editors
             editorJS    = monaco.editor.create(document.querySelector('#editor-js')  , Object.assign(editorConfig, {language: 'javascript'}) );
             editorCSS   = monaco.editor.create(document.querySelector('#editor-css') , Object.assign(editorConfig, {language: 'css'})        );
@@ -156,10 +158,11 @@ function initialize(){
  * require monaco editor scripts with promise
  */
 function requireMonaco(){
-    return new Promise(function(_resolve){
-        require.config({ paths: { 'vs': '../script/vs' }});
-        require(['vs/editor/editor.main'], _resolve);
-    });
+    return Promise.resolve()
+    // return new Promise(function(_resolve){
+    //     require.config({ paths: { 'vs': '../script/vs' }});
+    //     require(['vs/editor/editor.main'], _resolve);
+    // });
 }
 
 /**

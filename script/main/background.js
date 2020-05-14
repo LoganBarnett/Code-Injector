@@ -21,14 +21,14 @@ function injectRules(_injectionObject){
     if (!_injectionObject.info)
         return Promise.reject({message: 'Unknown tab info.'});
 
+    console.log('sending message to ', _injectionObject.info)
     // inject the "injector" script
     return browser.tabs
-    .executeScript(_injectionObject.info.tabId, {file: '/script/inject.js', runAt: 'document_start', frameId: _injectionObject.info.frameId})
+    .executeScript(_injectionObject.info.tabId, {file: '/script/main/inject.js', runAt: 'document_start', frameId: _injectionObject.info.frameId})
     .then(function(_res){ 
-                
         // send the list of rules
         return browser.tabs.sendMessage(_injectionObject.info.tabId, _injectionObject.rules, {frameId: _injectionObject.info.frameId});
-    });
+    }).catch(e => console.error('Error executing script:', e));
 }
 
 /**
@@ -46,7 +46,9 @@ function handleWebNavigationOnCommitted(_info) {
     .then(splitRulesByInjectionType)
 
     // inject the result
-    .then(injectRules);
+        .then(injectRules)
+        .catch(e => console.error('Error handling web nav commit:', e))
+    ;
 }
 
 /**  
@@ -88,6 +90,7 @@ function handleOnMessage(_mex, _sender, _callback){
 
                 if (!_tab) throw "Failed to get the current active tab.";
 
+                console.log('tab', tab)
                 var tab = { tabId: _tab.id, frameId: 0 };
                 var rules = Rules.serializeRules([_mex.rule]);
                 var injectionObject = splitRulesByInjectionType({rules: rules, info: tab});
@@ -158,7 +161,7 @@ function setBadgeCounter(_tabData) {
     }
 
     // Empty the text if the counter badge has been turned off in the settings
-    if (!Settings.getItem('showcounter')){
+    if (!Settings.$getItem('showcounter')){
         text = '';
     }
 

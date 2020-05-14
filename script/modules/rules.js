@@ -93,14 +93,15 @@ var RuleManager = (function(){
 
                     return rule;
                 },
-                next: null
+                next: null,
+                check: () => true,
             },
         },
 
         create: function(_rule){
 
             var rule = _rule || {};
-            var ruleVersion = _rule._version || '1'; // <- fallback to '1' as the default rule structure '_version'
+            var ruleVersion = _rule._version || '2'; // <- fallback to '1' as the default rule structure '_version'
             var checkStructure = function(_ruleVersion, _updateFromPrevious){
 
                 // return if the rule is not an object
@@ -137,7 +138,7 @@ var RuleManager = (function(){
 
             // if exist
             if (version){
-                return version.check(rule);
+                return version.check(_rule);
             } else {
                 return false;
             }
@@ -178,6 +179,7 @@ var Rules = (function(){
 
                 return rule;
             } else {
+                console.error('Rule is invalid!', rule);
                 return null;
             }
         },
@@ -196,6 +198,8 @@ var Rules = (function(){
 
                     if (RuleManager.check(rule)) {
                         rules.push(rule);
+                    } else {
+                        console.error('Rule was invalid!', rule);
                     }
                 });
             }
@@ -236,66 +240,69 @@ var Rules = (function(){
                 }
             */
 
-            var result = [];
-        
-            each(_rules, function(){
-        
-                // skip if the rule is not enabled
-                if (!this.enabled) return;
-        
-                var rule = this;
-                
+            const result = [];
+
+            each(_rules, function() {
+
+                const rule = this;
+                // Skip if not enabled.
+                if(!rule.options.enabled) {
+                    return;
+                }
+
                 if (rule.code.files.length){
                     each(rule.code.files, function(){
                         var file = this;
                         if (!file.ext) return;
                         result.push({
+                            _version: rule._version,
                             type: file.ext,
-                            enabled: rule.enabled,
+                            enabled: rule.options.enabled,
                             selector: rule.selector,
-                            topFrameOnly: rule.topFrameOnly,
+                            topFrameOnly: rule.options.topFrameOnly,
                             path: file.path,
                             local: file.type === 'local',
-                            onLoad: rule.onLoad
+                            onLoad: rule.options.onLoad
                         });
                     });
                 }
         
                 if (containsCode(rule.code.css)){
                     result.push({
+                        _version: rule._version,
                         type: 'css',
-                        enabled: rule.enabled,
+                        enabled: rule.options.enabled,
                         selector: rule.selector,
-                        topFrameOnly: rule.topFrameOnly,
+                        topFrameOnly: rule.options.topFrameOnly,
                         code: rule.code.css,
-                        onLoad: rule.onLoad
+                        onLoad: rule.options.onLoad
                     });
                 }
         
                 if (containsCode(rule.code.html)){
                     result.push({
+                        _version: rule._version,
                         type: 'html',
-                        enabled: rule.enabled,
+                        enabled: rule.options.enabled,
                         selector: rule.selector,
-                        topFrameOnly: rule.topFrameOnly,
+                        topFrameOnly: rule.options.topFrameOnly,
                         code: rule.code.html,
-                        onLoad: rule.onLoad
+                        onLoad: rule.options.onLoad
                     });
                 }
         
                 if (containsCode(rule.code.js)){
                     result.push({
                         type: 'js',
-                        enabled: rule.enabled,
+                        enabled: rule.options.enabled,
                         selector: rule.selector,
-                        topFrameOnly: rule.topFrameOnly,
+                        topFrameOnly: rule.options.topFrameOnly,
                         code: rule.code.js,
-                        onLoad: rule.onLoad
+                        onLoad: rule.options.onLoad
                     });
                 }
-        
+
             });
-        
             return result;
         },
         getInvolvedRules: function(_info){
@@ -315,13 +322,13 @@ var Rules = (function(){
             */ 
         
             return new Promise(function(_ok, _ko){
-        
+
                 var result = [];
                 var checkRule = function(_ind){ 
             
                     // current rule being parsed
                     var rule = data.serializedRules[_ind];
-            
+
                     // exit if there's no value in "rules" at index "_ind" (out of length)
                     if (!rule)
                         return _ok({rules: result, info: _info});

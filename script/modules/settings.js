@@ -47,7 +47,9 @@ var Settings = (function(){
             // save the settings list to the storage
             browser.storage.local.set({ settings: data.settings });
         },
-        getItem: function(_key){
+        // getItem seems to be a reserved thing, and it doesn't persist across
+        // Object.assign or something. This rename fixed the issue.
+        $getItem: function(_key){
             return data.settings[_key];
         },
         setItem: function(_key, _value){
@@ -72,8 +74,8 @@ var Settings = (function(){
         init: function(){
             return data.init();
         },
-        getItem: function(_key){
-            return data.getItem(_key);
+        $getItem: function(_key){
+            return data.$getItem(_key);
         },
         setItem: function(_key, _value){
             return data.setItem(_key, _value);
